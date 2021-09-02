@@ -23,7 +23,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
 
     @Override
     public Optional<Category> getById(final int id) {
-        return Optional.ofNullable(categoryMapper.getById(id));
+        return Optional.of(categoryMapper.getById(id));
     }
 
     @Override

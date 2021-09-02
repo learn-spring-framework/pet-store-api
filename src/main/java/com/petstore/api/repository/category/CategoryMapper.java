@@ -12,12 +12,12 @@ import java.util.List;
 @Mapper
 @Component
 public interface CategoryMapper {
-    @Select("SELECT `id`, `name` FROM `categories` WHERE `is_deleted` = 0")
+    @Select("SELECT `id`, `name` as nameCategory FROM `categories` WHERE `is_deleted` = 0")
     List<Category> getAll();
 
     @Select("SELECT `id`, `name` FROM `categories` WHERE `is_deleted` = 0 AND id=#{id}")
     Category getById(@Param("id") final int id);
 
-    @Insert("INSERT INTO categories(name) VALUES('#{name}')")
+    @Insert("INSERT INTO categories(name) VALUES(#{name})")
     void add(@Param("name") final String name);
 }

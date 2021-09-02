@@ -12,4 +12,5 @@ public class ApiPathConfig {
     public static final String GET_ALL_PRODUCT_URL = "/v1/products";
     public static final String SEARCH_PRODUCT_URL = "/v1/product/search";
     public static final String ADD_PRODUCT_URL = "/v1/product";
+    public static final String GET_PRODUCT_BY_CATEGORY_URL = "/v1/product/category/{categoryId}";
 }

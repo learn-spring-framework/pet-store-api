@@ -16,4 +16,6 @@ public @interface CheckPrice {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+
+    boolean isNull() default false;
 }

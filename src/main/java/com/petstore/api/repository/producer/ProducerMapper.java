@@ -18,6 +18,6 @@ public interface ProducerMapper {
     @Select("SELECT `id`, `name` FROM `producers` WHERE `is_deleted` = 0 AND id=#{id}")
     Producer getById(final int id);
 
-    @Insert("INSERT INTO producers(name) VALUES('#{name}')")
+    @Insert("INSERT INTO producers(name) VALUES(#{name})")
     void add(@Param("name") final String name);
 }

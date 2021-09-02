@@ -4,6 +4,7 @@ import com.petstore.api.config.ApiPathConfig;
 import com.petstore.api.controller.Success;
 import com.petstore.api.domain.product.Product;
 import com.petstore.api.domain.product.ProductRepository;
+import com.petstore.api.domain.product.ProductSearchRequest;
 import com.petstore.api.exception.InvalidParameterException;
 import com.petstore.api.service.product.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -26,41 +28,52 @@ public class ProductController {
 
     private final ProductRepository productRepository;
     private final ProductService productService;
+    private final ProductGetByCategoryResponseFactory productGetByCategoryResponseFactory;
 
     @Autowired
-    public ProductController(final ProductRepository productRepository, final ProductService productService) {
+    public ProductController(final ProductRepository productRepository,
+                             final ProductService productService,
+                             final ProductGetByCategoryResponseFactory productGetByCategoryResponseFactory) {
         this.productRepository = productRepository;
         this.productService = productService;
+        this.productGetByCategoryResponseFactory = productGetByCategoryResponseFactory;
     }
 
     @GetMapping(ApiPathConfig.GET_ALL_PRODUCT_URL)
-    public ProductsResponse getAll() {
-        return new ProductsResponse(productRepository.getAll());
+    public ProductsSearchResponse getAll() {
+        return new ProductsSearchResponse(productRepository.getAll());
     }
 
     @GetMapping(ApiPathConfig.SEARCH_PRODUCT_URL)
-    public ProductsResponse search(@Valid final ProductRequest productRequest,
-                                   final BindingResult bindingResult) {
+    public ProductsSearchResponse search(@Valid final ProductSearchRequest productSearchRequest,
+                                         final BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             throw new InvalidParameterException(getErrorMessage(bindingResult));
         }
 
-        if (productRequest.isListAll()) {
-            return new ProductsResponse(productRepository.getAll());
+        if (productSearchRequest.isListAll()) {
+            return new ProductsSearchResponse(productRepository.getAll());
         }
 
-        final List<Product> products = productRepository.search(
-                productRequest.getCategoryId(),
-                productRequest.getProducerId(),
-                productRequest.getCode(),
-                productRequest.getName()
-        );
+        final List<Product> products = productRepository.search(productSearchRequest);
 
-        return new ProductsResponse(products);
+        return new ProductsSearchResponse(products);
+    }
+
+    @GetMapping(ApiPathConfig.GET_PRODUCT_BY_CATEGORY_URL)
+    public ProductGetByCategoryResponse getByCategoryId(@Valid final ProductRequest productRequest,
+                                                        final BindingResult bindingResult) {
+        if(bindingResult.hasErrors()) {
+            throw new InvalidParameterException(getErrorMessage(bindingResult));
+        }
+
+        final List<Product> products = productService.getByCategoryId(Integer.parseInt(productRequest.getCategoryId()));
+
+        return productGetByCategoryResponseFactory.toProductGetByCategoryResponse(products);
     }
 
     @PostMapping(ApiPathConfig.ADD_PRODUCT_URL)
-    public Success add(@Valid final ProductAddRequestBody productAddRequestBody,
+    public Success add(@Valid @RequestBody final ProductAddRequestBody productAddRequestBody,
                        final BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new InvalidParameterException(getErrorMessage(bindingResult));

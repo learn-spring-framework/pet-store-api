@@ -9,6 +9,7 @@ import com.petstore.api.domain.product.ProductRepository;
 import com.petstore.api.exception.DataNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,6 +17,7 @@ public class ProductService {
 
     private static final String CATEGORY_NOT_FOUND = "Category is not found. Id: [%s]";
     private static final String PRODUCER_NOT_FOUND = "Producer is not found. Id: [%s]";
+    private static final String PRODUCT_NOT_FOUND = "Product is not found. CategoryId: [%s]";
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
@@ -37,5 +39,13 @@ public class ProductService {
         producer.orElseThrow(() -> new DataNotFoundException(String.format(PRODUCER_NOT_FOUND, producerId)));
 
         productRepository.add(categoryId, producerId, product);
+    }
+
+    public List<Product> getByCategoryId(final int categoryId) {
+        final List<Product> products = productRepository.getByCategoryId(categoryId);
+        if (products.isEmpty()) {
+            throw new DataNotFoundException(String.format(PRODUCT_NOT_FOUND, categoryId));
+        }
+        return products;
     }
 }
